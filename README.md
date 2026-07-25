@@ -6,9 +6,24 @@ ARP-based network discovery tool. Discovers live hosts, resolves MAC vendors, bu
 
 ## Quick Start
 
-\\\ash
+```bash
 pip install -e .
 python -m netmap.cli
-\\\
+```
 
-## License MIT
+### Options
+
+```bash
+python -m netmap.cli --target 192.168.1.0/24 --output report.html
+```
+
+## Features
+
+- ARP-based host discovery
+- MAC address vendor resolution
+- Network topology mapping
+- HTML report generation
+
+## License
+
+MIT
