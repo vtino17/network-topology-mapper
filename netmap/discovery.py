@@ -2,6 +2,9 @@ import subprocess
 import sys
 import re
 import socket
+import ipaddress
+
+MAX_PING_HOSTS = 4096
 
 # `arp -a` prints two shapes:
 #   Linux/BSD  ? (192.168.1.1) at aa:bb:cc:dd:ee:ff [ether] on wlan0
@@ -62,10 +65,17 @@ def resolve_hostname(ip):
         return None
 
 def ping_sweep(subnet, count=1):
-    base = ".".join(subnet.split(".")[:3])
+    network = ipaddress.ip_network(subnet, strict=False)
+    if network.version != 4:
+        raise ValueError("ping_sweep currently supports IPv4 networks only")
+    host_count = max(0, network.num_addresses - (0 if network.prefixlen >= 31 else 2))
+    if host_count > MAX_PING_HOSTS:
+        raise ValueError(
+            f"subnet expands to {host_count} hosts; maximum is {MAX_PING_HOSTS}"
+        )
     results = []
-    for i in range(1, 255):
-        ip = f"{base}.{i}"
+    for address in network.hosts():
+        ip = str(address)
         param = "-n" if sys.platform == "win32" else "-c"
         try:
             r = subprocess.run(["ping", param, str(count), ip], capture_output=True, timeout=5)
