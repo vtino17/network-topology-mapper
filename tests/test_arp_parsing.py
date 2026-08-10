@@ -110,6 +110,18 @@ class TestPingSweep:
         assert alive[0] == "192.168.1.1"
         assert len(alive) == 254
 
+    def test_prefix_length_controls_scan_scope(self):
+        completed = type("R", (), {"returncode": 0})()
+        with patch("subprocess.run", return_value=completed) as run:
+            alive = ping_sweep("192.0.2.0/30")
+        assert alive == ["192.0.2.1", "192.0.2.2"]
+        assert run.call_count == 2
+
+    def test_oversized_network_is_rejected_before_execution(self):
+        with patch("subprocess.run") as run, pytest.raises(ValueError, match="maximum"):
+            ping_sweep("10.0.0.0/8")
+        run.assert_not_called()
+
 
 class TestTopology:
 
