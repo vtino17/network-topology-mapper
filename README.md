@@ -8,8 +8,10 @@ ARP-based network discovery tool. Discovers live hosts, resolves MAC vendors, bu
 
 ```bash
 pip install -e .
-python -m netmap.cli
+python -m netmap.cli --help
 ```
+
+> Run ARP scans only on networks you own or are authorized to test.
 
 ### Options
 
